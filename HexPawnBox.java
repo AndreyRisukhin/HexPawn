@@ -15,6 +15,14 @@ Maintenance Log:
 - Added the getMove() method, getState() method. 
 - Nested constructors. 
 - Not sure if I need state fields when add linking, will reduce as develop code. 
+- Update getMove() to work with links, .next and such. 
+- While playing a game, keep track of which boxes were used, and which move they made. Needed to reward/punish.
+- Created link-based constructors, makeMove() to replace getMove() (better name, advances links);
+- Input File must be structured: id turn boardState aCount a(id) bCount b(id) cCount c(id) dCount d(id) prev
+   > Updating constructors.
+- Added setID(), setTurn(), and setState().
+12/27/19
+-  
 */
 
 import java.util.*; // For Random
@@ -31,12 +39,12 @@ public class HexPawnBox {
    private int id;
 
    private String boardState; // Format: "1_2_3_4_5_6_7_8_9" top left corner -> bottom right corner, row by row
-   
+   /*
    private String aState; // Each of these is what the board will look like if corresponding count is chosen.
    private String bState;
    private String cState;
    private String dState; 
-   
+   */
    private Random r; 
    
    public HexPawnBox a; // Link between boxes, based on aState (if chosen, aState leads to this box)
@@ -45,6 +53,7 @@ public class HexPawnBox {
    public HexPawnBox d;
    public HexPawnBox prev; // Allows for traversing back up, to punish/reward accordingly
    
+   /*
    // Post: Constructs HexPawnBox with four moves.
    public HexPawnBox(String boardState, int turn, int id, int a, String aState, 
          int b, String bState, int c, String cState, int d, String dState) {
@@ -84,6 +93,62 @@ public class HexPawnBox {
       this.dState = null; 
       this.r = new Random();     
    }
+   */
+   /*
+   // Constructs HexPawnBox with a previous link and four moves. 
+   public HexPawnBox(String boardState, int turn, int id, HexPawnBox prev, 
+         HexPawnBox a, HexPawnBox b, HexPawnBox c, HexPawnBox d) {
+      this(boardState, turn, id, prev, a ,b, c);
+      this.d = d;
+   }
+   
+   // Constructs HexPawnBox with a previous link and three moves. 
+   public HexPawnBox(String boardState, int turn, int id, HexPawnBox prev, 
+         HexPawnBox a, HexPawnBox b, HexPawnBox c) {
+      this(boardState, turn, id, prev, a, b);
+      this.c = c;
+   }
+   
+   // Constructs HexPawnBox with a previous link and two moves. 
+   public HexPawnBox(String boardState, int turn, int id, HexPawnBox prev, 
+         HexPawnBox a, HexPawnBox b) {
+      this(boardState, turn, id, prev, a);
+      this.b = b;
+   }
+   
+   // Constructs HexPawnBox with a previous link and one move. 
+   public HexPawnBox(String boardState, int turn, int id, HexPawnBox prev, 
+         HexPawnBox a) {
+      this(boardState, turn, id, prev);
+      this.a = a;
+   }
+   
+   // Constructs HexPawnBox with a previous link, no moves. 
+   public HexPawnBox(String boardState, int turn, int id, HexPawnBox prev) {
+      this(boardState, turn, id);
+      this.prev = prev;
+   }
+   */
+   
+   // Constructs HexPawnBox with one move.
+   public HexPawnBox(int id, int turn, String boardState, int aCount, int aID) {
+   
+   }
+   
+   // Constructs isolated HexPawnBox with no links or moves. Root constructor.
+   public HexPawnBox(int id, int turn, String boardState) {
+      this.boardState = boardState;
+      this.turn = turn;
+      this.id = id;
+   } 
+   
+   // Constructs blank HexPawnBox (zero argument constructor). 
+   public HexPawnBox() {
+   
+   }
+   
+   
+   
    
    // Pre: Passed four int values.
    // Post: Changes this HexPawnBox's fields by that amount.
@@ -99,6 +164,34 @@ public class HexPawnBox {
       System.out.println("\tD " + this.dCount);
    }
    
+   // Post: Returns the new HexPawnBox representing a chosen move.
+   // Uses links to do this. String can be gotten later. 
+   // Remember to move the "current" pointer to the chosen move.
+   public HexPawnBox makeMove(HexPawnBox current) {
+      int sum = this.aCount + this.bCount + this.cCount + this.dCount;
+      int randomNumber = r.nextInt(sum) + 1; // +1 because includes 0, excludes bound; shift by one to fix
+      // Break 100% into areas for each count, if randomNumber is in that area that count is chosen
+      if (randomNumber > this.aCount) {
+         if (randomNumber > (this.aCount + this.bCount)) {
+            if (randomNumber > (this.aCount + this.bCount + this.cCount)) {
+               if (randomNumber > (this.aCount + this.bCount + this.cCount + this.dCount)) {
+                  System.out.println("Something went wrong, randomNumber was " + randomNumber + "and sum was " + sum);
+               } else {
+                  current = this.d;
+               }
+            } else {
+               current = this.c;
+            }
+         } else {
+            current = this.b;
+         }
+      } else {
+         current = this.a;
+      }
+      return current;
+   }
+   
+   /*
    // Post: Returns the chosen String representing a move.
    public String getMove() {
       String move = "";
@@ -125,9 +218,29 @@ public class HexPawnBox {
       }
       return move;
    }
+   */
    
    // Post: Returns this box's board state.
    public String getState() {
       return this.boardState; 
    }
+   
+   // Pre: Passed an int.
+   // Post: Sets this box's ID.
+   public void setID(int id) {
+      this.id = id;
+   }
+   
+   // Pre: Passed positive integer.
+   // Post: Sets this box's turn number.
+   public void setTurn(int turn) {
+      this.turn = turn;
+   }
+   
+   // Pre: Passed String matching Board State format.
+   // Post: Sets this box's Board State.
+   public void setState(String state) {
+      this.boardState = state;
+   }
+   
 }
