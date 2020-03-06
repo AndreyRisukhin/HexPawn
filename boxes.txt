@@ -1,0 +1,3 @@
+A Machine: Top Left to Top Right, Top to Bottom
+
+A1	B_B_B -_-_- W_W_W	B_B_B W_-_- -_W_W	B_B_B -_W_- W_-_W
