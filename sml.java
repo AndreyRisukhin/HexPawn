@@ -14,9 +14,13 @@ Maintenance Log:
 - Deciding how to store the information, it would be great to be able to build it
     up from a file.
 - For now, input file is hardcoded.
-- Working parser to create a map of keys and values. 
-
-Map to list of strings
+- Working on parser to create a map of keys and values. 
+3/20/20
+- Put parser in a seperate method, buildMachine(machine, fileScanner).
+- Game engine checks for win conditions, stalemate conditions. Not active yet.
+- Issues reading in more than one box, no way to know that end of line reached. 
+- Added "X" as End Of Line character in boxes.txt.
+- Note: Will have checking for box labels to still be A# for machine A. 
 */
 
 import java.util.*;
@@ -34,11 +38,34 @@ public class sml {
       // String a = console.next();   
       welcome();
       Scanner input = new Scanner(new File("boxes.txt"));
-      
+      machineA = buildMachine(machineA, input);
+      // File inFile = new File(getFile(console));
+      char turn = 'A';
+      while(play) { // Game loop
+         // Make a move
+         if (turn == 'A') {
+            // Check for Stalemate
+               // if (machineA.contains(boardState) == FALSE)        // Redundant to have for both machines
+            // machineA moves
+         } else if (turn == 'B') {
+            // Check for Stalemate
+               // if (machineB.contains(boardState) == FALSE)
+            // machineB moves
+         } 
+         // Check for a win
+            // if (boardState.substring(top row has W) || boardState.substring(no B))
+               // machineA win
+            // else if (boardState.substring(bottom row has B) || boardState.substring(no W)
+               // machineB win
+      }
+   }
+   
+   // Pre: Passed machineA, Scanner input connected to file to build machineA.
+   // Post: Returns completed machineA.
+   public static Map<String, List<String>> buildMachine(Map<String, List<String>> machineA, Scanner input) throws FileNotFoundException {
       if (input.hasNext()) {
          System.out.println("Title of File: " + input.nextLine());
       } 
-      
       while(input.hasNextLine()) { // Each Key / Value List
          System.out.println("Box: " + input.next());
          String key = input.next(); // First 1/3 of key
@@ -48,30 +75,29 @@ public class sml {
             System.out.println(token);
             key += " " + token;
          }
-         System.out.println(key);
-         
-         machineA.put(key, new ArrayList<String>()); // ArrayList
-                  
+         System.out.println("Key: " + key);
+         machineA.put(key, new ArrayList<String>()); // Key (current boardState)    
+                                   // maps to ArrayList of possible boardStates.        
          System.out.println();
-         while(input.hasNext()) { // Value(s)
-            String value = "";
-            for (int i = 0; i < 3; i++) { // a Value
-               String token = input.next();
-               System.out.println(token);
-               value += token;
-            }
+         boolean thereAreValuesLeft = true;
+         while(input.hasNext() && thereAreValuesLeft) { // Value(s) combining
+            String value = input.next();
             System.out.println(value);
-            
-            machineA.get(key).add(value);
+            if (value.equals("X")) {
+               thereAreValuesLeft = false;
+            } else {            
+               for (int i = 0; i < 2; i++) { // Combines values (rows of board) in groups of 3
+                  String token = input.next(); // a Value (row of board)
+                  System.out.println(token);
+                  value += " " + token; 
+               }
+               System.out.println("Value: " + value); // A complete board state.      
+               machineA.get(key).add(value); // Saves complete board state.
+            }
          }    
          System.out.println();
       }
-            
-      // File inFile = new File(getFile(console));
-         
-      while(play) { // Game loop
-      
-      }
+      return machineA;
    }
    
    // Pre: Passed Scanner attached to user input.

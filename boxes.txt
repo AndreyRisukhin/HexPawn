@@ -1,3 +1,5 @@
-A Machine: Top Left to Top Right, Top to Bottom
+A Machine (no color order, eol: X): Top Left to Top Right, Top to Bottom
 
-A1	B_B_B -_-_- W_W_W	B_B_B W_-_- -_W_W	B_B_B -_W_- W_-_W
+A1	B_B_B -_-_- W_W_W	B_B_B W_-_- -_W_W	B_B_B -_W_- W_-_W	X
+A2	-_B_B B_W_- W_-_W	-_B_W B_-_- W_-_W	-_B_B B_W_W W_-_-	X
+A6	-_B_B -_B_- W_-_W	-_B_B W_B_- -_-_W	-_B_B -_W_- -_-_W	-_B_B -_W_- W_-_-	-_B_B -_B_W W_-_-	X
