@@ -1,5 +1,44 @@
 A Machine (no color order, eol: X): Top Left to Top Right, Top to Bottom
 
-A1	B_B_B -_-_- W_W_W	B_B_B W_-_- -_W_W	B_B_B -_W_- W_-_W	X
-A2	-_B_B B_W_- W_-_W	-_B_W B_-_- W_-_W	-_B_B B_W_W W_-_-	X
-A6	-_B_B -_B_- W_-_W	-_B_B W_B_- -_-_W	-_B_B -_W_- -_-_W	-_B_B -_W_- W_-_-	-_B_B -_B_W W_-_-	X
+A01	B_B_B -_-_- W_W_W	B_B_B W_-_- -_W_W	B_B_B -_W_- W_-_W	X
+A02	-_B_B B_W_- W_-_W	-_B_W B_-_- W_-_W	-_B_B B_W_W W_-_-	X
+A03	B_-_B W_B_- -_W_W	B_-_B W_B_W -_W_-	X
+A04	B_-_B B_-_- -_W_W	B_-_B W_-_- -_-_W	B_-_B B_W_- -_-_W	B_-_B B_-_W -_W_-	X
+A05	B_B_- W_-_B -_W_W	B_W_- -_-_B -_W_W	B_B_- W_W_B -_-_W	B_B_- W_-_W -_-_W	X
+A06	-_B_B -_B_- W_-_W	-_B_B W_B_- -_-_W	-_B_B -_W_- -_-_W	-_B_B -_W_- W_-_-	-_B_B -_B_W W_-_-	X
+A07	-_-_B W_B_- -_W_-	W_-_B -_B_- -_W_-	X
+A08	B_-_- B_W_B -_-_W	B_W_- B_-_B -_-_W	X
+A09	B_-_- B_-_W -_-_W	B_-_W B_-_- -_-_W	X
+A10	-_B_- -_W_B W_-_-	-_B_- W_W_B -_-_-	X
+A11 	-_-_B B_B_- -_-_W	-_-_B B_W_- -_-_-	-_-_B B_B_W -_-_-	X
+A12	B_-_- W_B_W -_-_W	B_-_W W_B_- -_-_W	B_-_- W_W_W -_-_-	X	
+A13	-_-_B -_B_B W_-_-	-_-_B W_B_B -_-_-	-_-_B -_W_B -_-_-	X
+A14	B_-_- W_W_B -_W_-	B_W_- W_-_B -_W_-	B_-_- W_W_W -_-_-	X
+A15	-_B_- -_B_- -_-_W	-_B_- -_W_- -_-_-	-_B_- -_B_W -_-_-	X
+A16	B_-_B -_W_B W_-_-	B_-_B W_W_B -_-_-	B_W_B -_-_B W_-_-	B_-_w -_-_B W_-_-	X
+A17	-_B_- W_B_B -_-_W	W_B_- -_B_B -_-_W	-_W_- -_B_B -_-_W	-_B_- W_W_B -_-_-	X
+A18	B_B_- -_B_W W_-_-	B_B_- W_B_W -_-_-	B_B_- -_W_W -_-_-	B_W_- -_B_- W_-_-	B_B_W -_B_- W_-_-	X
+A19	-_-_- B_W_B -_-_-	-_W_- B_-_B -_-_-	X
+A20	-_-_- W_B_W -_-_-	W_-_- -_B_W -_-_-	-_-_W W_B_- -_-_-	X
+
+B Machine (no color order, eol: X): Top Left to Top Right, Top to Bottom
+
+B01	B_B_B -_W_- W_-_W	-_B_B B_W_- W_-_W	-_B_B -_B_- W_-_W	X
+B02	B_B_B W_-_- -_W_W	B_-_B B_-_- -_W_W	B_-_B W_B_- -_W_W	B_B_- W_-_B -_W_W	X
+B04	-_B_B B_W_W W_-_-	-_-_B B_W_B W_-_-	-_B_- B_B_W W_-_-	X
+B05	B_-_B B_-_W -_W_-	B_-_B -_-_W B_W_-	B_-_B -_-_W -_B_-	X
+B06	-_B_B -_W_- -_-_W	-_B_- -_B_- -_-_W	-_B_- -_W_B -_-_W	X
+B07	-_B_B -_W_- W_-_-	-_B_- -_B_- W_-_-	-_B_- -_W_B W_-_-	X
+B08	B_-_B B_W_- -_-_W	-_-_B B_B_- -_-_W	B_-_B -_W_- B_-_W	B_-_- B_B_- -_-_W	B_-_- B_W_B -_-_W	X
+B09	-_B_B -_B_W W_-_-	-_-_B -_B_B W_-_-	-_B_B -_-_W B_-_-	-_B_B -_-_W W_B_-	X
+B10	B_-_B W_W_- -_W_-	-_-_B W_B_- -_W_-	B_-_- W_B_- -_W_-	B_-_- W_W_B -_W_-	X
+B11	B_B_- W_-_W -_-_W	B_-_- B_-_W -_-_W	B_-_- W_B_W -_-_W	B_-_- W_-_B -_-_W	X
+B12	-_B_B W_B_- -_-_W	-_-_B B_B_- -_-_W	-_B_- W_B_B -_-_W	-_B_B W_-_- -_B_W	-_B_B W_-_- -_-_B	X
+B13	B_-_B W_-_- -_-_W	B_-_- W_-_B -_-_W	X
+B14	B_-_- W_W_W -_-_-	-_-_- W_B_W -_-_-	X
+B15	-_B_- -_B_W -_-_-	-_B_- -_-_W -_B_-	-_-_- -_B_B -_-_-	X
+B16	-_-_B -_W_B -_-_-	-_-_- -_B_B -_-_-	-_-_B -_W_- -_-_B	X
+B17	B_-_- B_B_W -_-_-	B_-_- -_B_W B_-_-	B_-_- B_-_W -_B_-	X
+B18	-_B_- B_W_W -_-_-	-_-_- B_W_B -_-_-	-_B_- -_W_W B_-_-	X
+B19	-_-_B B_B_W -_-_-	-_-_B -_B_W B_-_-	-_-_B B_-_W -_B_-	X
+B20	-_-_B B_W_- -_-_-	-_-_B -_W_B B_-_-	-_-_- B_B_- -_-_-	-_-_- B_W_B -_-_- X
