@@ -21,6 +21,9 @@ Maintenance Log:
 - Issues reading in more than one box, no way to know that end of line reached. 
 - Added "X" as End Of Line character in boxes.txt.
 - Note: Will have checking for box labels to still be A# for machine A. 
+3/21/20
+- Completed A Machine encoding, started B Machine encoding (boxes.txt)
+- Add some error checking code? To make sure everything is encoded correctly (_ where there should be, 
 */
 
 import java.util.*;
@@ -28,20 +31,26 @@ import java.io.*;
 
 public class sml {
 
-   public static void main(String args[]) throws FileNotFoundException {
-      
+   public static void main(String args[]) throws FileNotFoundException {      
       boolean play = false;
       Map<String, List<String>> machineA = new TreeMap<String, List<String>>(); // Maps board states to possible future states
+      Map<String, List<String>> machineB = new TreeMap<String, List<String>>(); // Same, player 2
       
       Scanner console = new Scanner(System.in);
       String version = "1.0";      
-      // String a = console.next();   
+      
       welcome();
-      Scanner input = new Scanner(new File("boxes.txt"));
-      machineA = buildMachine(machineA, input);
       // File inFile = new File(getFile(console));
+      
+      Scanner inputA = new Scanner(new File("boxes.txt"));
+      machineA = buildMachine("A", machineA, inputA);
+      Scanner inputB = new Scanner(new File("boxes.txt")); // Reference Semantics, new Scanner needed like this  
+      machineB = buildMachine("B", machineB, inputB); // I know a machine is bounded by title and XX, but method can only return one, machine can't be referenced and even if it can this is clearer
+      
+      // System.out.println("Would you like to play a game?");
+      
       char turn = 'A';
-      while(play) { // Game loop
+      while(play) { // Game loop: Move, check for Win, check for Stalemate (run these as method(char turn))
          // Make a move
          if (turn == 'A') {
             // Check for Stalemate
@@ -53,51 +62,70 @@ public class sml {
             // machineB moves
          } 
          // Check for a win
-            // if (boardState.substring(top row has W) || boardState.substring(no B))
+            // if (boardState.substring(top row has W) || boardState.substring(no B on board))
                // machineA win
-            // else if (boardState.substring(bottom row has B) || boardState.substring(no W)
+            // else if (boardState.substring(bottom row has B) || boardState.substring(no W on board)
                // machineB win
       }
    }
    
    // Pre: Passed machineA, Scanner input connected to file to build machineA.
    // Post: Returns completed machineA.
-   public static Map<String, List<String>> buildMachine(Map<String, List<String>> machineA, Scanner input) throws FileNotFoundException {
-      if (input.hasNext()) {
-         System.out.println("Title of File: " + input.nextLine());
-      } 
-      while(input.hasNextLine()) { // Each Key / Value List
-         System.out.println("Box: " + input.next());
-         String key = input.next(); // First 1/3 of key
-         System.out.println(key);
-         for (int i = 0; i < 2; i++) { // Other 2/3 Key
-            String token = input.next();
-            System.out.println(token);
-            key += " " + token;
+   public static Map<String, List<String>> buildMachine(String id, Map<String, List<String>> machine, Scanner input) throws FileNotFoundException {
+      boolean newMachineTitle = true;
+      while (input.hasNextLine()) {
+         //boolean machineScanDone = true;
+         if (newMachineTitle) {
+            System.out.println("Title of Machine: " + input.nextLine());
+            newMachineTitle = false;
+            //machineScanDone = false;
+         } else {
+//            while(input.hasNextLine() /*&& !machineScanDone*/) { // Each Key / Value List
+               String boxName = input.next();
+               if (boxName.equals("XX")) { // if the end of a machine is reached
+                  newMachineTitle = true;
+               } else if (id.equals(boxName.substring(0,1))) { // If box is for this machine
+                  // Add box to machine
+                  System.out.println("Box: " + boxName);
+                  String key = input.next(); // First 1/3 of key
+                  System.out.println(key);
+                  for (int i = 0; i < 2; i++) { // Other 2/3 Key
+                     String token = input.next();
+                     System.out.println(token);
+                     key += " " + token;
+                  }
+                  System.out.println("Key: " + key);
+                  machine.put(key, new ArrayList<String>()); // Key (current boardState)    
+                                            // maps to ArrayList of possible boardStates.        
+                  System.out.println();
+                  boolean thereAreValuesLeft = true;
+                  while(input.hasNext() && thereAreValuesLeft) { // Value(s) combining
+                     String value = input.next();
+                     System.out.println(value);
+                     if (value.substring(0, 1).equals("X")) {
+                        thereAreValuesLeft = false;
+                        if (value.equals("XX")) {
+                           newMachineTitle = true;   
+                        }               
+                     } else {            
+                        for (int i = 0; i < 2; i++) { // Combines values (rows of board) in groups of 3
+                           String token = input.next(); // a Value (row of board)
+                           System.out.println(token);
+                           value += " " + token; 
+                        }
+                        System.out.println("Value: " + value); // A complete board state.      
+                        machine.get(key).add(value); // Saves complete board state.
+                     }
+                  }    
+                  System.out.println();
+               } else {
+                  // Skip, check next box
+                  input.nextLine(); // Move scanner to next line
+               }  
+            //}
          }
-         System.out.println("Key: " + key);
-         machineA.put(key, new ArrayList<String>()); // Key (current boardState)    
-                                   // maps to ArrayList of possible boardStates.        
-         System.out.println();
-         boolean thereAreValuesLeft = true;
-         while(input.hasNext() && thereAreValuesLeft) { // Value(s) combining
-            String value = input.next();
-            System.out.println(value);
-            if (value.equals("X")) {
-               thereAreValuesLeft = false;
-            } else {            
-               for (int i = 0; i < 2; i++) { // Combines values (rows of board) in groups of 3
-                  String token = input.next(); // a Value (row of board)
-                  System.out.println(token);
-                  value += " " + token; 
-               }
-               System.out.println("Value: " + value); // A complete board state.      
-               machineA.get(key).add(value); // Saves complete board state.
-            }
-         }    
-         System.out.println();
-      }
-      return machineA;
+      }  
+      return machine;
    }
    
    // Pre: Passed Scanner attached to user input.
