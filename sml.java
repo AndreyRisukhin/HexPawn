@@ -34,6 +34,20 @@ Maintenance Log:
    it was played from. 
 - Began work on move mechanic. Use boardState as a key in machine who is moving,
    then choose a value uniformly at random to become the new boardState.
+9/9/2020
+- Idea for UI: At end of each game, split moveTranscript to 3, print them to 
+   show sequence of moves. Easier for user to understand this way.
+- Create printState() method to display board state in a friendly way.
+- Currently, creating constants to reward/punish machine score. Eventually, 
+   prompt user if they want to set different weights for different machines.
+- BUG: A move of "B_B_B -_W_- W_-_W" registers as a stalemate in B. I suspect
+   B is incorrectly storing information from Boxes.txt
+- Bug fixed.
+- New issue: because mirrored boxes are not included, I need to make sure Boxes.txt
+   has the same side of the mirror for all boxes. Two positions can be practically 
+   identical but have a different key because they are flipped. Should I just 
+   include mirrors? They are unique if not distinct moves.
+- Yes. This is a big issue. I'll just make duplicate boxes. TO DO
 */
 
 import java.util.*; // Includes .Random
@@ -45,9 +59,9 @@ public class sml {
       Map<String, List<String>> machineA = new TreeMap<String, List<String>>(); // Maps board states to possible future states
       Map<String, List<String>> machineB = new TreeMap<String, List<String>>(); // Same, player 2
       
-      final String initialState = "B_B_B -_-_- W_W_W"; // The starting state of board for all games (key for first machineA box)
+      final String INITIAL_STATE = "B_B_B -_-_- W_W_W"; // The starting state of board for all games (key for first machineA box)
       
-      = Random();
+      Random rand = new Random();
        
       Scanner console = new Scanner(System.in);
       String version = "1.0";      
@@ -64,93 +78,130 @@ public class sml {
       // Create supporting variables.
       boolean play = playDesire(console); // True -> play a game, False -> do not.
       boolean inAGame = play; // If user wants to play, start a new game.
+      boolean aCanMove = true;
+      boolean bCanMove = true;
       List<String> moveTranscript = new ArrayList<String>(); // Records all moves in a game. Used to reward/penalize machines.    
       char turn = 'A'; // Machine A always plays first.
-      String boardState = initialState; // The state of the current board.
+      int moveCount = 0; // Keeps track of the move.
+      String boardState = INITIAL_STATE; // The state of the current board.
+      
+      final double STALEMATE_POINTS_A = 0.5; // Reward machines for stalemate
+      final double STALEMATE_POINTS_B = 0.5;
+      final double VICTORY_POINTS_A = 1;
+      final double VICTORY_POINTS_B = 1;
+      final double LOSS_POINTS_A = 0;
+      final double LOSS_POINTS_B = 0;
+      
+      double aScore = 0;
+      double bScore = 0;
+      
+      printState(boardState, moveCount);
       
       while(play) { 
+         moveCount = 0;
          while(inAGame) { // Game loop: Move, check for Win, check for Stalemate (run these as method(char turn))
             // Make a move
-            if (turn == 'A') {
-               // Check for Stalemate
-                  // if (machineA.contains(boardState) == FALSE)        // Redundant to have for both machines
+            if (turn == 'A') {     
                // machineA moves
-               boardState = makeMove(boardState, machineA);
+               boardState = makeMove(boardState, machineA, rand);
             } else if (turn == 'B') {
-               // Check for Stalemate
-                  // if (machineB.contains(boardState) == FALSE)
                // machineB moves
-               boardState = makeMove(boardState, machineB);
+               boardState = makeMove(boardState, machineB, rand); 
             } else {
                System.out.println("Error: game loop - char turn != A or B.");
             }
             // By updating transcript after a move, transcript alternates A, B, A, B, ...
-            moveTranscript.add(boardState) // Add the move to the transcript.
-            // Check for a win
-               // if (boardState.substring(top row has W) || boardState.substring(no B on board))
-                  // machineA win
-               // else if (boardState.substring(bottom row has B) || boardState.substring(no W on board)
-                  // machineB win
-            turn = nextTurn(turn);
+            moveCount++;
+            moveTranscript.add(boardState); // Add the move to the transcript.
+            printState(boardState, moveCount);
+            // System.out.println("Move transcript: " + moveTranscript);
+            
+            aCanMove = canMove(machineA, boardState);
+            bCanMove = canMove(machineB, boardState);
+            
+            // Check for a win, one or both can move
+            if (boardState.substring(0,5).contains("W") || !boardState.contains("B")) { 
+               // Top row has W || no B on board -> machineA win
+               aScore += VICTORY_POINTS_A;
+               bScore += LOSS_POINTS_B;
+               System.out.println("A score: " + aScore);
+               inAGame = false;
+            } else if (boardState.substring(12,17).contains("B") || !boardState.contains("W")) { 
+               // Bottom row has B || no W on board -> machineB win
+               bScore += VICTORY_POINTS_B;
+               aScore += LOSS_POINTS_A;
+               System.out.println("B score: " + bScore);
+               inAGame = false;
+            }
+            if (inAGame && !aCanMove && !bCanMove) { // Check for a stalemate now, neither can move, and not a win
+               aScore += STALEMATE_POINTS_A;
+               bScore += STALEMATE_POINTS_B;
+               System.out.println("Stalemate! A score: " + aScore + ", B score: " + bScore);
+               inAGame = false;
+            }
+            
+            turn = nextTurn(turn); // If A went, B goes; if B went, A goes.
          }
          play = playDesire(console); // Check if they want to play another game
+         if (play) {
+            boardState = INITIAL_STATE;
+            turn = 'A';
+            printState(boardState, moveCount);
+         }
       }
    }
    
-   // Pre: Passed machineA, Scanner input connected to file to build machineA.
+   // Pre: Passed machine, Scanner input connected to file to build all machine, String specifying machine to build.
    // Post: Returns completed machineA.
    public static Map<String, List<String>> buildMachine(String id, Map<String, List<String>> machine, Scanner input) throws FileNotFoundException {
+      // Get to the correct section of boxes
+      String current = input.next();
+      while (!current.equals(id)) {
+         current = input.next();
+      }
+      // Build the machine
       boolean newMachineTitle = true;
       while (input.hasNextLine()) {
-         //boolean machineScanDone = true;
          if (newMachineTitle) {
-            System.out.println("Title of Machine: " + input.nextLine());
+            System.out.println("Title of Machine: " + current + " " + input.nextLine());
             newMachineTitle = false;
-            //machineScanDone = false;
          } else {
-//            while(input.hasNextLine() /*&& !machineScanDone*/) { // Each Key / Value List
-               String boxName = input.next();
-               if (boxName.equals("XX")) { // if the end of a machine is reached
-                  newMachineTitle = true;
-               } else if (id.equals(boxName.substring(0,1))) { // If box is for this machine
-                  // Add box to machine
-                  //System.out.println("Box: " + boxName);
-                  String key = input.next(); // First 1/3 of key
-                  //System.out.println(key);
-                  for (int i = 0; i < 2; i++) { // Other 2/3 Key
-                     String token = input.next();
-                     //System.out.println(token);
-                     key += " " + token;
-                  }
-                  System.out.println("Key: " + key);
-                  machine.put(key, new ArrayList<String>()); // Key (current boardState)    
-                                            // maps to ArrayList of possible boardStates.        
-                  System.out.println();
-                  boolean thereAreValuesLeft = true;
-                  while(input.hasNext() && thereAreValuesLeft) { // Value(s) combining
-                     String value = input.next();
-                     //System.out.println(value);
-                     if (value.substring(0, 1).equals("X")) {
-                        thereAreValuesLeft = false;
-                        if (value.equals("XX")) {
-                           newMachineTitle = true;   
-                        }               
-                     } else {            
-                        for (int i = 0; i < 2; i++) { // Combines values (rows of board) in groups of 3
-                           String token = input.next(); // a Value (row of board)
-                           //System.out.println(token);
-                           value += " " + token; 
-                        }
-                        System.out.println("Value: " + value); // A complete board state.      
-                        machine.get(key).add(value); // Saves complete board state.
+            String boxName = input.next();
+            if (boxName.equals("XX")) { // if the end of a machine is reached
+               newMachineTitle = true;
+            } else if (id.equals(boxName.substring(0,1))) { // If box is for this machine
+               // Add box to machine
+               String key = input.next(); // First 1/3 of key
+               for (int i = 0; i < 2; i++) { // Other 2/3 Key
+                  String token = input.next();
+                  key += " " + token;
+               }
+               System.out.println("Key: " + key);
+               machine.put(key, new ArrayList<String>()); // Key (current boardState)    
+                                         // maps to ArrayList of possible boardStates.        
+               System.out.println();
+               boolean thereAreValuesLeft = true;
+               while(input.hasNext() && thereAreValuesLeft) { // Value(s) combining
+                  String value = input.next();
+                  if (value.substring(0, 1).equals("X")) {
+                     thereAreValuesLeft = false;
+                     if (value.equals("XX")) {
+                        newMachineTitle = true;   
+                     }               
+                  } else {            
+                     for (int i = 0; i < 2; i++) { // Combines values (rows of board) in groups of 3
+                        String token = input.next(); // a Value (row of board)
+                        value += " " + token; 
                      }
-                  }    
-                  System.out.println();
-               } else {
-                  // Skip, check next box
-                  input.nextLine(); // Move scanner to next line
-               }  
-            //}
+                     System.out.println("Value: " + value); // A complete board state.      
+                     machine.get(key).add(value); // Saves complete board state.
+                  }
+               }    
+               System.out.println();
+            } else {
+               // Skip, check next box
+               input.nextLine(); // Move scanner to next line
+            }  
          }
       }  
       return machine;
@@ -190,14 +241,12 @@ public class sml {
    // Pre: Takes current board position (String), machine who is moving. boardState 
    //       must be a key in machine!
    // Post: Returns new board position (String)
-   public static String makeMove(String boardState, Map<String, List<String>> machine) {
-      String newState = "";
-      
+   public static String makeMove(String boardState, Map<String, List<String>> machine, Random rand) {
       // Find the possible values for key = boardState
-      moveChoices = machine.getValue(boardState);
+      List<String> moveList = machine.get(boardState);
       // Uniformly at Random choose one of them
-      
-      
+      int choice = rand.nextInt(moveList.size());
+      String newState = moveList.get(choice);      
       return newState;
    }
    
@@ -212,5 +261,25 @@ public class sml {
          System.out.println("nextTurn was passed a character, not A or B.");
          return 'C';
       }
+   }
+   
+   // Pre: Passed a String representing a board state ("_-_-_ _-_-_ _-_-_") in that form.
+   // Post: Prints the String as a box label (3 lines, _-_-_ row on each).
+   public static void printState(String boardState, int moveCount) {
+      // Print substrings (0,5), (6,11), (12,17) -> (6i,6(i+1)-1), (6i,6(i+1)-1), (6i,6(i+1)-1)
+      System.out.println("Move " + moveCount);
+      for (int i = 0; i < 3; i++) {
+         System.out.println(boardState.substring((6*i),(6*(i+1)-1)));
+      }
+   }   
+   
+   // Pre: Takes a machine and current boardState (String).
+   // Post: Returns true if the boardState isn't a key in machine.
+   public static boolean canMove(Map<String, List<String>> machine, String boardState) {
+      if (machine.containsKey(boardState)) {
+         return true; // Has key -> can make a move 
+      } else {
+         return false;
+      } 
    }
 }
