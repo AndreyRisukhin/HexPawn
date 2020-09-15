@@ -7,14 +7,17 @@ Maintenance Log:
 9/9/2020
 - Created to assist recreating Boxes.txt with mirrored boxes.
 9/11/2020
-- 
+- First attempt at efficient file writing code.
 9/13/2020
 - I need the following structure to repeat:
    > Name of machine
    > ID  states   X
    > XX
    >
-- 
+9/14/2020
+- Implemented new loop system for writing to file. It makes more intuitive sense,
+   and now I need to type less! :)
+- Added reverseString method and check for state reversibility method.
 */
 import java.util.*;
 import java.io.*;
